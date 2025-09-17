@@ -1,0 +1,10 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+venv/
+/ipo_data.py
+.vscode/
+__pycache__/
+Scripts/
+Lib/
+Include/
+/pyvenv.cfg
+
