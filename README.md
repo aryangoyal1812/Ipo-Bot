@@ -18,6 +18,13 @@ This project automatically fetches IPO data, filters currently open IPOs, evalua
 - **Automatically bold GMP percentages** and display Fire rating with 🔥 icons.
 - Works with **SMTP email** (Gmail or other providers).
 - Can be scheduled to run **daily** using **GitHub Actions** or other cloud schedulers.
+  
+---
+
+### Example Report
+
+![Daily IPO Report](https://github.com/user-attachments/assets/be078ace-7549-4ca7-8466-b7145411c20a)
+*Example of the daily IPO email report sent to recipients. Rows highlighted with green background indicate IPOs meeting recommended criteria.*
 
 ---
 
@@ -30,8 +37,11 @@ This project automatically fetches IPO data, filters currently open IPOs, evalua
 
 ## Setup Instructions
 
-1. **Clone the repository**
+**Clone the repository**
 
 ```bash
 git clone https://github.com/aryangoyal1812/Ipo-Bot.git
 cd ipo-bot
+
+
+
