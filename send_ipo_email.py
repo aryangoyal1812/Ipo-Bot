@@ -119,13 +119,14 @@ def create_email_html(ipos):
             price = 0
             min_investment = "--"
 
-        # Highlight condition
+        # Highlight/recommended condition
         highlight = gmp_percent >= 20 and fire_count >= 4 and sub_value >= 5
         highlight_class = "highlight" if highlight else ""
+        recommended_badge = '<span style="color:white;background-color:#FF5733;padding:2px 5px;border-radius:4px;margin-left:5px;font-size:0.8em;">Recommended</span>' if highlight else ""
 
         rows += f"""
         <tr class="{highlight_class}">
-            <td>{name}</td>
+            <td>{name} {recommended_badge}</td>
             <td>{gmp}</td>
             <td>{fire_display}</td>
             <td>₹{price_str}</td>
@@ -161,6 +162,7 @@ def create_email_html(ipos):
         .highlight {{
             background-color: #d8f5d2;
             font-weight: bold;
+            border-left: 4px solid #FF5733;
         }}
         .note {{
             margin-top: 20px;
@@ -193,12 +195,9 @@ def create_email_html(ipos):
         </tbody>
       </table>
       <p class="note">
-        ✨ <b>Highlighted rows</b> meet three criteria: <b>GMP ≥ 20 %</b>,
-        <b>🔥 Fire Rating ≥ 4</b>, and <b>Subscription ≥ 5×</b>.
-        These IPOs may deserve closer attention, but always conduct your own research before investing.
-      </p>
-      <p class="note">
-        💡 IPOs with high GMP, at least four 🔥, and strong subscription numbers can be considered for further evaluation.
+        ✨ <b>Recommended badge</b> indicates IPOs meeting all three criteria: <b>GMP ≥ 20%</b>,
+        <b>🔥 Fire Rating ≥ 4</b>, and <b>Subscription ≥ 5×</b>. These IPOs may deserve closer attention, 
+        but always conduct your own research before investing.
       </p>
       {DISCLAIMER}
     </body>
