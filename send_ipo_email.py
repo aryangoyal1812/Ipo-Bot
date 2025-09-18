@@ -20,10 +20,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from bs4 import BeautifulSoup
 import urllib.parse
-
-import sendgrid
-from sendgrid.helpers.mail import Mail
 from datetime import date
+import time
 
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY") 
 # === CONFIG ===
@@ -184,7 +182,7 @@ def create_email_html(ipos):
           <tr>
             <th>Name</th>
             <th>GMP</th>
-            <th>🔥 Fire Rating</th>
+            <th>🔥 Fire Rating(5)</th>
             <th>Price/Share</th>
             <th>IPO Size</th>
             <th>Lot</th>
@@ -210,21 +208,32 @@ def create_email_html(ipos):
     """
     return html
 
-def send_email(subject, html_content):
-    sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+def send_email(subject, plain_text, html_content=None, delay=2):
     today = date.today().strftime("%d-%b-%Y")
     subject_with_date = f"{subject} - {today}"
 
-    message = Mail(
-        from_email=SENDER,
-        to_emails=RECIPIENTS,  # SendGrid handles multiple recipients properly
-        subject=subject_with_date,
-        html_content=html_content
-    )
-
     try:
-        response = sg.send(message)
-        print(f"Email sent! Status code: {response.status_code}")
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SENDER, PASSWORD)
+
+            for recipient in RECIPIENTS:
+                msg = MIMEMultipart("alternative")
+                msg["Subject"] = subject
+                msg["From"] = SENDER
+                msg["To"] = recipient
+
+                # Always include plain text
+                msg.attach(MIMEText(plain_text, "plain"))
+
+                # Optionally include HTML version
+                if html_content:
+                    msg.attach(MIMEText(html_content, "html"))
+
+                server.sendmail(SENDER, recipient, msg.as_string())
+                print(f"Email sent to {recipient}")
+                time.sleep(delay)  # Pause to avoid rate limiting/spam filters
+
     except Exception as e:
         print(f"Error sending email: {e}")
 
@@ -233,5 +242,6 @@ if __name__ == "__main__":
     html_body = create_email_html(ipos)
     # print(html_body)  # For debugging
     today_str = datetime.now().strftime("%d-%b-%Y")
-    send_email(f"Daily IPO Report - Open Issues ({today_str})", html_body)
+    plain_message = "Here is your daily IPO update. Check the attachment or details below."
+    send_email(f"Daily IPO Report ({today_str})", plain_message, html_body)
     print(f"Sent email with {len(ipos)} open IPO(s).")

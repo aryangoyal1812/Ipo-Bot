@@ -7,4 +7,4 @@ Scripts/
 Lib/
 Include/
 /pyvenv.cfg
-
+/.env
