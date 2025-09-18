@@ -20,7 +20,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from bs4 import BeautifulSoup
 import urllib.parse
-import time
+
+import sendgrid
+from sendgrid.helpers.mail import Mail
+from datetime import date
+
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY") 
 # === CONFIG ===
 BASE_URL = "https://webnodejs.investorgain.com/cloud/report/data-read/331/1/9/2025/2025-26/0/all"
 
@@ -205,27 +210,23 @@ def create_email_html(ipos):
     """
     return html
 
-def send_email(subject, html_content,batch_size=4):
-    """
-    Send email in batches to avoid Gmail blocking.
-    """
-    # Split recipients into smaller batches
-    for i in range(0, len(RECIPIENTS), batch_size):
-        batch = RECIPIENTS[i:i+batch_size]
+def send_email(subject, html_content):
+    sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+    today = date.today().strftime("%d-%b-%Y")
+    subject_with_date = f"{subject} - {today}"
 
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = SENDER
-        msg["To"] = SENDER           # Send to yourself for less spam detection
-        # Add BCC recipients (hidden from each other)
-        msg["Bcc"] = ", ".join(batch)
-        msg.attach(MIMEText(html_content, "html"))
+    message = Mail(
+        from_email=SENDER,
+        to_emails=RECIPIENTS,  # SendGrid handles multiple recipients properly
+        subject=subject_with_date,
+        html_content=html_content
+    )
 
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SENDER, PASSWORD)
-            server.sendmail(SENDER, batch, msg.as_string())
-        time.sleep(1)
+    try:
+        response = sg.send(message)
+        print(f"Email sent! Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
 
 if __name__ == "__main__":
     ipos = fetch_and_filter_open_ipos()

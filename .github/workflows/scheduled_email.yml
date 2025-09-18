@@ -32,6 +32,7 @@ jobs:
           RECIPIENTS: ${{ vars.RECIPIENTS }}
           SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
         run: |
           echo "Running IPO email script..."
           python send_ipo_email.py
