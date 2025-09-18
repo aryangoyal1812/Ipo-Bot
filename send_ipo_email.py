@@ -20,7 +20,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from bs4 import BeautifulSoup
 import urllib.parse
-
+import time
 # === CONFIG ===
 BASE_URL = "https://webnodejs.investorgain.com/cloud/report/data-read/331/1/9/2025/2025-26/0/all"
 
@@ -205,17 +205,27 @@ def create_email_html(ipos):
     """
     return html
 
-def send_email(subject, html_content):
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = SENDER
-    msg["To"] = "Undisclosed Recipients"
-    msg.attach(MIMEText(html_content, "html"))
+def send_email(subject, html_content,batch_size=4):
+    """
+    Send email in batches to avoid Gmail blocking.
+    """
+    # Split recipients into smaller batches
+    for i in range(0, len(RECIPIENTS), batch_size):
+        batch = RECIPIENTS[i:i+batch_size]
 
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SENDER, PASSWORD)
-        server.sendmail(SENDER, RECIPIENTS, msg.as_string())
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = SENDER
+        msg["To"] = SENDER           # Send to yourself for less spam detection
+        # Add BCC recipients (hidden from each other)
+        msg["Bcc"] = ", ".join(batch)
+        msg.attach(MIMEText(html_content, "html"))
+
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SENDER, PASSWORD)
+            server.sendmail(SENDER, batch, msg.as_string())
+        time.sleep(1)
 
 if __name__ == "__main__":
     ipos = fetch_and_filter_open_ipos()
