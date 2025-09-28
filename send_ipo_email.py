@@ -90,7 +90,7 @@ def create_email_html(ipos):
         price_str = clean_html(item.get("Price", "0")).replace(",", "")
         lot_str = clean_html(item.get("Lot", "0")).replace(",", "")
         ipo_size = clean_html(item.get("IPO Size", "--"))
-        fire_rating_raw = clean_html(item.get("Fire Rating", ""))
+        fire_rating_raw = clean_html(item.get("Rating", ""))
         sub = clean_html(item.get("Sub", "--"))
         open_date = clean_html(item.get("Open", "--"))
         close_date = clean_html(item.get("Close", "--"))
