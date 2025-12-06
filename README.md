@@ -1,6 +1,6 @@
 # Daily IPO Report Emailer
 
-This project automatically fetches IPO data, filters currently open IPOs, evaluates them based on **GMP, Fire Rating, and Subscription**, and sends a daily email report with recommendations.
+This project automatically fetches the IPO data, filters currently open IPOs, evaluates them based on **GMP, Fire Rating, and Subscription**, and sends a daily email report with recommendations.
 
 ---
 
