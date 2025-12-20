@@ -90,7 +90,7 @@ def create_email_html(ipos):
         price_str = clean_html(item.get("Price (₹)", "0")).replace(",", "")
         lot_str = clean_html(item.get("Lot", "0")).replace(",", "")
         ipo_size = clean_html(item.get("IPO Size (₹ in cr)", "--"))
-        fire_rating_raw = clean_html(item.get("Rating", ""))
+        fire_rating_raw = item.get("Rating", "")  # Keep HTML, don't clean it yet
         sub = clean_html(item.get("Sub", "--"))
         open_date = clean_html(item.get("Open", "--"))
         close_date = clean_html(item.get("Close", "--"))
@@ -103,18 +103,16 @@ def create_email_html(ipos):
         # Bold the GMP percentage
         gmp = re.sub(r"(\d+(\.\d+)?%)", r"<b>\1</b>", gmp_raw)
 
-        
-        # remove fire-off spans completely
+        # Remove fire-off spans completely from the raw HTML
         cleaned_fire_rating = re.sub(
             r"<span[^>]*class=['\"]fire-off['\"][^>]*>.*?</span>",
             "",
-            fire_rating_raw,
+            str(fire_rating_raw),
             flags=re.DOTALL
         )
-        # Count fire emojis (🔥 or &#128293;)
-        fire_count = cleaned_fire_rating.count("🔥") or cleaned_fire_rating.count("&#128293;")
-        fire_display = cleaned_fire_rating  # keep original fire display
-
+        # Count fire emojis in the cleaned HTML (both 🔥 and &#128293;)
+        fire_count = cleaned_fire_rating.count("🔥") + cleaned_fire_rating.count("&#128293;")
+        fire_display = clean_html(cleaned_fire_rating) # keep original fire display
         # Parse subscription as float
         try:
             sub_value = float(sub.lower().replace("x", "").strip())
@@ -251,5 +249,5 @@ if __name__ == "__main__":
     # print(html_body)  # For debugging
     today_str = datetime.now().strftime("%d-%b-%Y")
     plain_message = "Here is your daily IPO update. Check the attachment or details below."
-    send_email(f"Daily IPO Report ({today_str})", plain_message, html_body)
+    # send_email(f"Daily IPO Report ({today_str})", plain_message, html_body)
     print(f"Sent email with {len(ipos)} open IPO(s).")
