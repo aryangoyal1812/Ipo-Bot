@@ -249,5 +249,5 @@ if __name__ == "__main__":
     # print(html_body)  # For debugging
     today_str = datetime.now().strftime("%d-%b-%Y")
     plain_message = "Here is your daily IPO update. Check the attachment or details below."
-    # send_email(f"Daily IPO Report ({today_str})", plain_message, html_body)
+    send_email(f"Daily IPO Report ({today_str})", plain_message, html_body)
     print(f"Sent email with {len(ipos)} open IPO(s).")
