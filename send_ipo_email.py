@@ -103,9 +103,17 @@ def create_email_html(ipos):
         # Bold the GMP percentage
         gmp = re.sub(r"(\d+(\.\d+)?%)", r"<b>\1</b>", gmp_raw)
 
+        
+        # remove fire-off spans completely
+        cleaned_fire_rating = re.sub(
+            r"<span[^>]*class=['\"]fire-off['\"][^>]*>.*?</span>",
+            "",
+            fire_rating_raw,
+            flags=re.DOTALL
+        )
         # Count fire emojis (🔥 or &#128293;)
-        fire_count = fire_rating_raw.count("🔥") or fire_rating_raw.count("&#128293;")
-        fire_display = fire_rating_raw  # keep original fire display
+        fire_count = cleaned_fire_rating.count("🔥") or cleaned_fire_rating.count("&#128293;")
+        fire_display = cleaned_fire_rating  # keep original fire display
 
         # Parse subscription as float
         try:
