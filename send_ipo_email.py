@@ -43,21 +43,35 @@ Please verify independently before making any investment decisions.
 </p>
 """
 
-def clean_html(value):
-    return BeautifulSoup(str(value), "html.parser").get_text(separator=" ").strip()
+API_HOST = "https://webnodejs.investorgain.com"
 
+def _current_fy():
+    today = date.today()
+    if today.month >= 4:
+        return today.year, f"{today.year}-{str(today.year + 1)[-2:]}"
+    return today.year - 1, f"{today.year - 1}-{str(today.year)[-2:]}"
+    
 def build_dynamic_url():
-    # Use current hour and minute to generate a v param for cache-busting
-    now = datetime.now()
-    v_param = now.strftime("%H-%M")
+    year, fy = _current_fy()
+    v_param = datetime.now().strftime("%H-%M")
+    path = f"/cloud/v2/report/data-read/331/1/7/{year}/{fy}/0/all"
     params = {"search": "", "v": v_param}
-    return f"{BASE_URL}?{urllib.parse.urlencode(params)}"
-
+    return f"{API_HOST}{path}?{urllib.parse.urlencode(params)}"
+    
 def fetch_and_filter_open_ipos():
     url = build_dynamic_url()
-    response = requests.get(url)
+    headers = {
+        "accept": "application/json, text/plain, */*",
+        "origin": "https://www.investorgain.com",
+        "referer": "https://www.investorgain.com/",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    }
+    response = requests.get(url, headers=headers, timeout=30)
     response.raise_for_status()
-    data = response.json()["reportTableData"]
+    payload = response.json()
+    if "reportTableData" not in payload:
+        raise RuntimeError(f"API error: {payload.get('msg', payload)} (url={url})")
+    data = payload["reportTableData"]
 
     today = datetime.now().date()
     open_ipos = []
